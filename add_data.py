@@ -28,7 +28,7 @@ def get_request( url, textmod=None):
         print(res)
 
 type_list = ["sn","code","type","croom","cabinet","status","member_buyer","project","role","remark"]
-url = "http://cmdb.redheat.cn/api/addInfo"
+url = "http://10.100.46.192/api/addInfo"
 xls_data = readXls("D:\code\Book1.xlsx")
 xls_row = xls_data.nrows
 for i in range(xls_row - 1):
