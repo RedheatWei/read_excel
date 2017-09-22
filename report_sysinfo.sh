@@ -21,13 +21,13 @@ function get_model_type(){
 	`dmidecode  -t system | grep "Version" | awk -F: '{print $2}'`
 }
 function get_cpu_mode(){
-	`dmidecode --type  4 | grep "Version" | awk -F: '{print $2}'`
+	`dmidecode --type  4 | grep "Version" | awk -F: '{print $2}' | uniq -c`
 }
 function get_cpu_count(){
-	`dmidecode --type  4 | grep "Thread Count" | awk -F: '{print $2}'`
+	`dmidecode --type  4 | grep "Thread Count" | awk -F: '{print $2}' | uniq -c`
 }
 function get_network_pci(){
-	`lspci | grep "Ethernet" | awk -F: '{print $3}'`
+	`lspci | grep "Ethernet" | awk -F: '{print $3}' | uniq -c`
 }
 # function get_disk_info(){
 #     x=`lshw -short | grep disk | grep -v 'cdrom' | awk  '{print $2}'`
@@ -46,4 +46,8 @@ function get_memory(){
 function get_ipaddr(){
 	`ip addr | grep 'state UP' -A2 | grep inet | awk '{print $2}' | cut -f1  -d'/' | grep  "^[0-9]"`
 }
-get_disk_info
+#get_disk_info
+
+sn=$(get_sn)
+model=$(get_model)
+model_type=$(get_model_type)
