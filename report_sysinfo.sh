@@ -1,53 +1,15 @@
 #!/usr/bin/env bash
 yum -y install dmidecode pciutils smartmontools lshw
-# sn=dmidecode  -t system | grep "Serial Number" | awk -F: | awk '{print $2}' #sn
-# dmidecode  -t system | grep "Product Name" | awk -F: '{print $2}' #型号
-# dmidecode  -t system | grep "Version" | awk -F: '{print $2}' #型号细类
-# dmidecode --type  4 | grep "Version" | awk -F: '{print $2}' #cpu mode
-# dmidecode --type  4 | grep "Thread Count" | awk -F: '{print $2}' #cpu核心
-# lspci | grep "Ethernet" | awk -F: '{print $3}' #网卡
-# lshw -short | grep disk | awk  '{print $2}' #获取硬盘
-# smartctl -i /dev/sda #硬盘信息
-# lshw -short | grep memory | grep DDR | cut -d" " -f37- #内存
-# ip addr | grep 'state UP' -A2 | grep inet | awk '{print $2}' | cut -f1  -d'/' | grep  "^[0-9]" #ip address
+api="http://10.100.46.192/api/addInfoConfig"
+sn=`dmidecode  -t system | grep "Serial Number" | awk -F: '{print $2}' | sed ':a;N;$!ba;s/\n/,/g'`
+model=`dmidecode  -t system | grep "Product Name" | awk -F: '{print $2}' | sed ':a;N;$!ba;s/\n/,/g'`
+model_type=`dmidecode  -t system | grep "Version" | awk -F: '{print $2}' | sed ':a;N;$!ba;s/\n/,/g'`
+cpu_mode=`dmidecode --type  4 | grep "Version" | awk -F: '{print $2}' | uniq -c | sed ':a;N;$!ba;s/\n/,/g'`
+cpu_count=`dmidecode --type  4 | grep "Thread Count" | awk -F: '{print $2}' | uniq -c | sed ':a;N;$!ba;s/\n/,/g'`
+network_pci=`lspci | grep "Ethernet" | awk -F: '{print $3}' | uniq -c | sed ':a;N;$!ba;s/\n/,/g'`
+memory=`lshw -short | grep memory | grep DDR | cut -d" " -f37- | uniq -c | sed ':a;N;$!ba;s/\n/,/g'`
+ipaddr=`ip addr | grep 'state UP' -A2 | grep inet | awk '{print $2}' | cut -f1  -d'/' | grep  "^[0-9]"`
 
-function get_sn(){
-	`dmidecode  -t system | grep "Serial Number" | awk -F: | awk '{print $2}'`
-}
-function get_model(){
-	`dmidecode  -t system | grep "Product Name" | awk -F: '{print $2}'`
-}
-function get_model_type(){
-	`dmidecode  -t system | grep "Version" | awk -F: '{print $2}'`
-}
-function get_cpu_mode(){
-	`dmidecode --type  4 | grep "Version" | awk -F: '{print $2}' | uniq -c`
-}
-function get_cpu_count(){
-	`dmidecode --type  4 | grep "Thread Count" | awk -F: '{print $2}' | uniq -c`
-}
-function get_network_pci(){
-	`lspci | grep "Ethernet" | awk -F: '{print $3}' | uniq -c`
-}
-# function get_disk_info(){
-#     x=`lshw -short | grep disk | grep -v 'cdrom' | awk  '{print $2}'`
-#     OLD_IFS="$IFS"
-#     IFS=" "
-#     array=($x)
-#     IFS="$OLD_IFS"
-# 	for i in ${array[*]};do
-# 		$(smartctl -i $i)
-# 		# echo "smartctl -i $i"
-# 	done
-# }
-function get_memory(){
-	`lshw -short | grep memory | grep DDR | cut -d" " -f37- `
-}
-function get_ipaddr(){
-	`ip addr | grep 'state UP' -A2 | grep inet | awk '{print $2}' | cut -f1  -d'/' | grep  "^[0-9]"`
-}
-#get_disk_info
-
-sn=$(get_sn)
-model=$(get_model)
-model_type=$(get_model_type)
+url="sn="$sn"&model="$model"&model_type="$model_type"&cpu_mode="$cpu_mode"&cpu_count="$cpu_count"&network_pci="$network_pci"&memory="$memory"&ipaddr="$ipaddr
+#url="--data-urlencode 'sn=$sn' --data-urlencode 'model=$model' --data-urlencode 'model_type=$model_type' --data-urlencode 'cpu_mode=$cpu_mode' --data-urlencode 'cpu_count=$cpu_count' 'network_pci=$network_pci' --data-urlencode 'memory=$memory' --data-urlencode 'ipaddr=$ipaddr'"
+curl -d "$url" "$api"

@@ -27,7 +27,7 @@ def get_request( url, textmod=None):
         res = res.read()
         print(res)
 
-type_list = ["sn","code","type","croom","cabinet","status","member_buyer","project","role","remark"]
+type_list = ["inside_code","sn","code","type","croom","cabinet","status","member_buyer","member_opser","project","group","role","member_real_user","remark"]
 url = "http://10.100.46.192/api/addInfo"
 xls_data = readXls("D:\code\Book1.xlsx")
 xls_row = xls_data.nrows
@@ -40,4 +40,4 @@ for i in range(xls_row - 1):
             data[type_list[j]] = "%.f" % xls_data.row_values(i)[j]
     print "complate %.2f%% (%s/%s)" % (((i+1)/xls_row)*100,i+1,xls_row)
     get_request(url,data)
-    time.sleep(2)
+    time.sleep(0.1)
